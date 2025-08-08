@@ -28,17 +28,63 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
 
   useEffect(() => {
     if (isLightOn) {
-      // Generate flies when light turns on
+      // Generate flies from different screen areas when light turns on
       const newFlies: Fly[] = [];
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 20; i++) {
+        let startX, startY;
+        
+        // Spawn flies from different edges and corners
+        const spawnArea = Math.floor(Math.random() * 8);
+        switch (spawnArea) {
+          case 0: // Top edge
+            startX = Math.random() * window.innerWidth;
+            startY = -20;
+            break;
+          case 1: // Bottom edge
+            startX = Math.random() * window.innerWidth;
+            startY = window.innerHeight + 20;
+            break;
+          case 2: // Left edge
+            startX = -20;
+            startY = Math.random() * window.innerHeight;
+            break;
+          case 3: // Right edge
+            startX = window.innerWidth + 20;
+            startY = Math.random() * window.innerHeight;
+            break;
+          case 4: // Top-left corner area
+            startX = Math.random() * 200;
+            startY = Math.random() * 200;
+            break;
+          case 5: // Top-right corner area
+            startX = window.innerWidth - Math.random() * 200;
+            startY = Math.random() * 200;
+            break;
+          case 6: // Bottom-left corner area
+            startX = Math.random() * 200;
+            startY = window.innerHeight - Math.random() * 200;
+            break;
+          default: // Bottom-right corner area
+            startX = window.innerWidth - Math.random() * 200;
+            startY = window.innerHeight - Math.random() * 200;
+            break;
+        }
+
+        // Initial velocity toward the light
+        const dx = lightX - startX;
+        const dy = lightY - startY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const normalizedVx = (dx / distance) * (1 + Math.random());
+        const normalizedVy = (dy / distance) * (1 + Math.random());
+
         newFlies.push({
           id: i,
-          x: lightX + (Math.random() - 0.5) * 200,
-          y: lightY + (Math.random() - 0.5) * 200,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4,
+          x: startX,
+          y: startY,
+          vx: normalizedVx,
+          vy: normalizedVy,
           angle: Math.random() * Math.PI * 2,
-          speed: 1 + Math.random() * 2,
+          speed: 2 + Math.random() * 3,
           isFalling: false,
         });
       }
@@ -64,15 +110,34 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
         prevFlies.filter(fly => !fly.isFalling).map(fly => {
           let { x, y, vx, vy, angle, speed } = fly;
 
-          // Attraction to light with some randomness
+          // Attraction to light with stronger force for swarming effect
           const dx = lightX - x;
           const dy = lightY - y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          // Add attraction force (stronger when closer)
-          const attractionForce = Math.min(0.3, 50 / distance);
-          vx += (dx / distance) * attractionForce * (0.5 + Math.random() * 0.5);
-          vy += (dy / distance) * attractionForce * (0.5 + Math.random() * 0.5);
+          // Stronger attraction force that varies with distance
+          let attractionForce;
+          if (distance > 400) {
+            // Strong pull when far away
+            attractionForce = 0.8;
+          } else if (distance > 150) {
+            // Medium pull in middle range
+            attractionForce = 0.4;
+          } else {
+            // Gentle circling when close
+            attractionForce = 0.1;
+          }
+
+          vx += (dx / distance) * attractionForce;
+          vy += (dy / distance) * attractionForce;
+
+          // Add swirling motion around the light when close
+          if (distance < 200) {
+            const perpX = -dy / distance;
+            const perpY = dx / distance;
+            vx += perpX * 0.3;
+            vy += perpY * 0.3;
+          }
 
           // Add random movement for natural flight pattern
           vx += (Math.random() - 0.5) * 0.5;
@@ -89,11 +154,23 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
           x += vx;
           y += vy;
 
-          // Keep flies within reasonable bounds around the light
-          const maxDistance = 300;
-          if (distance > maxDistance) {
-            x = lightX + (dx / distance) * maxDistance * 0.9;
-            y = lightY + (dy / distance) * maxDistance * 0.9;
+          // Keep flies within screen bounds, but allow them to approach from outside initially
+          const screenMargin = 50;
+          if (x < -screenMargin) {
+            x = -screenMargin;
+            vx = Math.abs(vx);
+          }
+          if (x > window.innerWidth + screenMargin) {
+            x = window.innerWidth + screenMargin;
+            vx = -Math.abs(vx);
+          }
+          if (y < -screenMargin) {
+            y = -screenMargin;
+            vy = Math.abs(vy);
+          }
+          if (y > window.innerHeight + screenMargin) {
+            y = window.innerHeight + screenMargin;
+            vy = -Math.abs(vy);
           }
 
           // Update angle for rotation
@@ -120,10 +197,10 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
       {flies.map(fly => (
         <div
           key={fly.id}
-          className={`absolute w-3 h-3 transition-none ${fly.isFalling ? 'fly falling' : ''}`}
+          className={`absolute transition-none ${fly.isFalling ? 'fly falling' : ''}`}
           style={{
-            left: fly.x - 6,
-            top: fly.y - 6,
+            left: fly.x - 8,
+            top: fly.y - 8,
             transform: `rotate(${fly.angle}rad)`,
             zIndex: 10,
           }}
@@ -131,9 +208,10 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
           <img 
             src={flyImage} 
             alt="Fly"
-            className="w-full h-full object-contain opacity-80"
+            className="w-4 h-4 object-contain opacity-90"
             style={{
-              filter: 'brightness(0.4) sepia(1) hue-rotate(30deg) saturate(2)',
+              filter: 'brightness(0.3) sepia(1) hue-rotate(25deg) saturate(1.5) contrast(1.2)',
+              imageRendering: 'crisp-edges',
             }}
           />
         </div>

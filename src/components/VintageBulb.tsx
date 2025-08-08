@@ -24,6 +24,12 @@ export const VintageBulb = ({ isOn }: VintageBulbProps) => {
               ? 'brightness-125 saturate-110' 
               : 'brightness-50 saturate-50'
           }`}
+          style={{
+            imageRendering: 'crisp-edges',
+            filter: isOn 
+              ? 'brightness(1.25) saturate(1.1) contrast(1.1)' 
+              : 'brightness(0.5) saturate(0.5) contrast(0.8)'
+          }}
         />
         
         {/* Warm glow overlay when on */}
