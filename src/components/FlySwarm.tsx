@@ -70,12 +70,12 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
             break;
         }
 
-        // Initial velocity toward the light
+        // Initial gentle velocity toward the light
         const dx = lightX - startX;
         const dy = lightY - startY;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const normalizedVx = (dx / distance) * (1 + Math.random());
-        const normalizedVy = (dy / distance) * (1 + Math.random());
+        const normalizedVx = (dx / distance) * (0.3 + Math.random() * 0.2);
+        const normalizedVy = (dy / distance) * (0.3 + Math.random() * 0.2);
 
         newFlies.push({
           id: i,
@@ -84,7 +84,7 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
           vx: normalizedVx,
           vy: normalizedVy,
           angle: Math.random() * Math.PI * 2,
-          speed: 2 + Math.random() * 3,
+          speed: 0.8 + Math.random() * 0.7,
           isFalling: false,
         });
       }
@@ -110,40 +110,40 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
         prevFlies.filter(fly => !fly.isFalling).map(fly => {
           let { x, y, vx, vy, angle, speed } = fly;
 
-          // Attraction to light with stronger force for swarming effect
+          // Gentle attraction to light with realistic fly behavior
           const dx = lightX - x;
           const dy = lightY - y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          // Stronger attraction force that varies with distance
+          // Much gentler attraction forces for realistic movement
           let attractionForce;
-          if (distance > 400) {
-            // Strong pull when far away
-            attractionForce = 0.8;
-          } else if (distance > 150) {
-            // Medium pull in middle range
-            attractionForce = 0.4;
+          if (distance > 500) {
+            // Very gentle pull when far away
+            attractionForce = 0.08;
+          } else if (distance > 200) {
+            // Slight pull in middle range
+            attractionForce = 0.05;
           } else {
-            // Gentle circling when close
-            attractionForce = 0.1;
+            // Minimal attraction when close, mostly random movement
+            attractionForce = 0.02;
           }
 
           vx += (dx / distance) * attractionForce;
           vy += (dy / distance) * attractionForce;
 
-          // Add swirling motion around the light when close
-          if (distance < 200) {
+          // Add gentle swirling motion around the light when close
+          if (distance < 150) {
             const perpX = -dy / distance;
             const perpY = dx / distance;
-            vx += perpX * 0.3;
-            vy += perpY * 0.3;
+            vx += perpX * 0.08;
+            vy += perpY * 0.08;
           }
 
-          // Add random movement for natural flight pattern
-          vx += (Math.random() - 0.5) * 0.5;
-          vy += (Math.random() - 0.5) * 0.5;
+          // Add subtle random movement for natural flight pattern
+          vx += (Math.random() - 0.5) * 0.15;
+          vy += (Math.random() - 0.5) * 0.15;
 
-          // Limit speed
+          // Gently limit speed for realistic movement
           const currentSpeed = Math.sqrt(vx * vx + vy * vy);
           if (currentSpeed > speed) {
             vx = (vx / currentSpeed) * speed;
@@ -173,8 +173,8 @@ export const FlySwarm = ({ isLightOn, onFlyCountChange }: FlySwarmProps) => {
             vy = -Math.abs(vy);
           }
 
-          // Update angle for rotation
-          angle += 0.1 + Math.random() * 0.1;
+          // Update angle for slower, more realistic rotation
+          angle += 0.03 + Math.random() * 0.02;
 
           return { ...fly, x, y, vx, vy, angle };
         })
