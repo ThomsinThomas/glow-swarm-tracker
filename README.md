@@ -69,3 +69,18 @@ Project Documentation
 	•	Realistic swarm of houseflies flying in chaotic natural patterns around the bulb using animated sprites or photographic images
 	•	When toggled OFF, flies instantly drop to the ground
 	•	Real-time AI overlay in JavaScript counts flies and displays the number in a corner of the screen
+
+
+ Screenshot
+
+
+ <img width="1552" height="928" alt="Screenshot 2025-08-09 at 7 18 52 AM" src="https://github.com/user-attachments/assets/ed9f20d3-5b0f-41e3-8e52-50b65878c23b" />
+<img width="1552" height="928" alt="Screenshot 2025-08-09 at 7 18 44 AM" src="https://github.com/user-attachments/assets/148b6b9f-f1d4-4ae4-b086-ddafb7b990a0" />
+
+Video
+
+
+https://github.com/user-attachments/assets/8aa619c7-acf9-4eb8-8206-0e29bf32ea0d
+
+
+
